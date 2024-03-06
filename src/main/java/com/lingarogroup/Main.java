@@ -31,39 +31,33 @@ public class Main {
 
         String peopleRegex = "(?<lastName>\\w+),\\s*(?<firstName>\\w+),\\s*(?<dob>\\d{1,2}/\\d{1,2}/\\d{4}),\\s(?<role>\\w+)(?:,\\s\\{(?<details>.*)\\})?\\n";
         Pattern peoplePat = Pattern.compile(peopleRegex);
-        Matcher peopleMat = peoplePat.matcher(peopleList);
-
-        int totalSalaries = 0;
-        while (peopleMat.find()) {
-            String employee = peopleMat.group();
-            totalSalaries += switch (peopleMat.group("role")) {
-                case "Programmer" -> {
-                    Employee programmer = new Programmer(employee, PROGRAMMER_BASE_SALARY);
-                    System.out.println(programmer);
-                    yield programmer.getSalary();
-                }
-                case "Manager" -> {
-                    Employee manager = new Manager(employee, MANAGER_BASE_SALARY);
-                    System.out.println(manager);
-                    yield manager.getSalary();
-                }
-                case "Analyst" -> {
-                    Employee analyst = new Analyst(employee, ANALYST_BASE_SALARY);
-                    System.out.println(analyst);
-                    yield analyst.getSalary();
-                }
-                case "CEO" -> {
-                    Employee ceo = new CEO(employee, CEO_BASE_SALARY);
-                    System.out.println(ceo);
-                    yield ceo.getSalary();
-                }
-                default -> 0;
-            };
-        }
+        int totalSalaries = getTotalSalaries(peoplePat, peopleList);
 
         NumberFormat currencyInstance = NumberFormat.getCurrencyInstance();
         System.out.printf("total salary should be %s%n", currencyInstance.format(totalSalaries));
 
+    }
+
+    private static int getTotalSalaries(Pattern peoplePat, String peopleList) {
+        Matcher peopleMat = peoplePat.matcher(peopleList);
+
+        int totalSalaries = 0;
+        Employee employee = null;
+        while (peopleMat.find()) {
+            String employeeRecord = peopleMat.group();
+            employee = switch (peopleMat.group("role")) {
+                case "Programmer" -> new Programmer(employeeRecord, PROGRAMMER_BASE_SALARY);
+                case "Manager" -> new Manager(employeeRecord, MANAGER_BASE_SALARY);
+                case "Analyst" -> new Analyst(employeeRecord, ANALYST_BASE_SALARY);
+                case "CEO" -> new CEO(employeeRecord, CEO_BASE_SALARY);
+                default -> null;
+            };
+            if(employee != null) {
+                System.out.println(employee);
+                totalSalaries += employee.getSalary();
+            }
+        }
+        return totalSalaries;
     }
 
 }
