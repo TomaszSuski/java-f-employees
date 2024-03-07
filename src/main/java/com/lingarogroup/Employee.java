@@ -34,7 +34,7 @@ public abstract class Employee implements IEmployee {
         }
     }
 
-    public static Employee createEmployee(String employeeRecord) {
+    public static IEmployee createEmployee(String employeeRecord) {
         Matcher peopleMat = Employee.PEOPLE_PATTERN.matcher(employeeRecord);
         if(peopleMat.find()) {
             return switch (peopleMat.group("role")) {
@@ -43,12 +43,15 @@ public abstract class Employee implements IEmployee {
                 case "Analyst" -> new Analyst(employeeRecord, Main.ANALYST_BASE_SALARY);
                 case "CEO" -> new CEO(employeeRecord, Main.CEO_BASE_SALARY);
                 // example of anonymous nested class declaration and initialisation
-                default -> new Employee() {
-                    @Override
-                    public int getSalary() {
-                        return 0;
-                    }
-                };
+//                default -> new Employee() {
+//                    @Override
+//                    public int getSalary() {
+//                        return 0;
+//                    }
+//                };
+                // in case of use interface with exactly one method as a return format, it's possible to use lambda expression
+                // here is IEmployee interface that declares exactly one needed method
+                default -> () -> 0;
             };
         } else {
             return new DummyEmployee();

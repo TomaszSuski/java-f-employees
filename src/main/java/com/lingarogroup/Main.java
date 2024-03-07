@@ -40,7 +40,7 @@ public class Main {
         Matcher peopleMatcher = Employee.PEOPLE_PATTERN.matcher(peopleList);
 
         int totalSalaries = 0;
-        Employee employee = null;
+        IEmployee employee = null;
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
             employee = Employee.createEmployee(employeeRecord);
