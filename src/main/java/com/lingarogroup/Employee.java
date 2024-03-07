@@ -18,7 +18,13 @@ public abstract class Employee implements IEmployee {
     protected int salary = 0;
     protected int salaryModifier = 0;
 
-    public Employee(String employeeRecord, int baseSalary) {
+    protected Employee() {
+        peopleMatcher = null;
+        lastName = "N/A";
+        firstName = "N/A";
+        dateOfBirth = null;
+    }
+    protected Employee(String employeeRecord, int baseSalary) {
         peopleMatcher = Employee.PEOPLE_PATTERN.matcher(employeeRecord);
         if (peopleMatcher.find()) {
             firstName = peopleMatcher.group("firstName");
@@ -36,10 +42,10 @@ public abstract class Employee implements IEmployee {
                 case "Manager" -> new Manager(employeeRecord, Main.MANAGER_BASE_SALARY);
                 case "Analyst" -> new Analyst(employeeRecord, Main.ANALYST_BASE_SALARY);
                 case "CEO" -> new CEO(employeeRecord, Main.CEO_BASE_SALARY);
-                default -> null;
+                default -> new DummyEmployee();
             };
         } else {
-            return null;
+            return new DummyEmployee();
         }
     }
 
@@ -57,5 +63,13 @@ public abstract class Employee implements IEmployee {
     @Override
     public String toString() {
         return String.format("%s %s, salary: %s", getFirstName(), getLastName(), moneyFormat.format(salary));
+    }
+
+    private static final class DummyEmployee extends Employee {
+
+        @Override
+        public int getSalary() {
+            return 0;
+        }
     }
 }

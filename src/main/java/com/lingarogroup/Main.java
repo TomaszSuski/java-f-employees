@@ -11,6 +11,7 @@ public class Main {
     public static void main(String[] args) {
         String peopleList = """
             Flinstone, Fred, 1/1/1900, Programmer, {locpd=2000,yoe=10,iq=140}
+            Flinstone, Fred, 1/1/1900, Programmerzzz, {locpd=2000,yoe=10,iq=140}
             Flinstone2, Fred, 1/1/1900, Programmer, {locpd=1300,yoe=14,iq=100}
             Flinstone3, Fred, 1/1/1900, Programmer, {locpd=2300,yoe=8,iq=105}
             Flinstone4, Fred, 1/1/1900, Programmer, {locpd=1630,yoe=3,iq=115}
@@ -43,10 +44,8 @@ public class Main {
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
             employee = Employee.createEmployee(employeeRecord);
-            if(employee != null) {
-                System.out.println(employee);
-                totalSalaries += employee.getSalary();
-            }
+            System.out.println(employee);
+            totalSalaries += employee.getSalary();
         }
         return totalSalaries;
     }
