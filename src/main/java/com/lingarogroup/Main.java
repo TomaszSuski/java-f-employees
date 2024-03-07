@@ -2,13 +2,12 @@ package com.lingarogroup;
 
 import java.text.NumberFormat;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
-    private static final int PROGRAMMER_BASE_SALARY = 3000;
-    private static final int MANAGER_BASE_SALARY = 3500;
-    private static final int ANALYST_BASE_SALARY = 2500;
-    private static final int CEO_BASE_SALARY = 5000;
+    public static final int PROGRAMMER_BASE_SALARY = 3000;
+    public static final int MANAGER_BASE_SALARY = 3500;
+    public static final int ANALYST_BASE_SALARY = 2500;
+    public static final int CEO_BASE_SALARY = 5000;
     public static void main(String[] args) {
         String peopleList = """
             Flinstone, Fred, 1/1/1900, Programmer, {locpd=2000,yoe=10,iq=140}
@@ -29,29 +28,21 @@ public class Main {
             Rubble, Betty, 4/4/1915, CEO, {avgStockPrice=300}
             """;
 
-        String peopleRegex = "(?<lastName>\\w+),\\s*(?<firstName>\\w+),\\s*(?<dob>\\d{1,2}/\\d{1,2}/\\d{4}),\\s(?<role>\\w+)(?:,\\s\\{(?<details>.*)\\})?\\n";
-        Pattern peoplePat = Pattern.compile(peopleRegex);
-        int totalSalaries = getTotalSalaries(peoplePat, peopleList);
+        int totalSalaries = getTotalSalaries(peopleList);
 
         NumberFormat currencyInstance = NumberFormat.getCurrencyInstance();
         System.out.printf("total salary should be %s%n", currencyInstance.format(totalSalaries));
 
     }
 
-    private static int getTotalSalaries(Pattern peoplePat, String peopleList) {
-        Matcher peopleMat = peoplePat.matcher(peopleList);
+    private static int getTotalSalaries(String peopleList) {
+        Matcher peopleMatcher = Employee.PEOPLE_PATTERN.matcher(peopleList);
 
         int totalSalaries = 0;
         Employee employee = null;
-        while (peopleMat.find()) {
-            String employeeRecord = peopleMat.group();
-            employee = switch (peopleMat.group("role")) {
-                case "Programmer" -> new Programmer(employeeRecord, PROGRAMMER_BASE_SALARY);
-                case "Manager" -> new Manager(employeeRecord, MANAGER_BASE_SALARY);
-                case "Analyst" -> new Analyst(employeeRecord, ANALYST_BASE_SALARY);
-                case "CEO" -> new CEO(employeeRecord, CEO_BASE_SALARY);
-                default -> null;
-            };
+        while (peopleMatcher.find()) {
+            String employeeRecord = peopleMatcher.group();
+            employee = Employee.createEmployee(employeeRecord);
             if(employee != null) {
                 System.out.println(employee);
                 totalSalaries += employee.getSalary();
