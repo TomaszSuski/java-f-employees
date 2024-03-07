@@ -14,8 +14,13 @@ public class CEO extends Employee {
         Matcher ceoMat = ceoPattern.matcher(peopleMatcher.group("details"));
         if (ceoMat.find()) {
             avgStockPrice = Integer.parseInt(ceoMat.group("avgStockPrice"));
-            salaryModifier = avgStockPrice;
-            salary = salary * salaryModifier;
         }
+    }
+
+    @Override
+    public int getSalary() {
+        salaryModifier = avgStockPrice;
+        salary = salary * salaryModifier;
+        return salary;
     }
 }

@@ -14,8 +14,13 @@ public class Analyst extends Employee {
         Matcher analystMat = analystPattern.matcher(peopleMatcher.group("details"));
         if (analystMat.find()) {
             projectCount = Integer.parseInt(analystMat.group("projectCount"));
-            salaryModifier = projectCount * 2;
-            salary += salaryModifier;
         }
+    }
+
+    @Override
+    public int getSalary() {
+        salaryModifier = projectCount * 2;
+        salary += salaryModifier;
+        return salary;
     }
 }

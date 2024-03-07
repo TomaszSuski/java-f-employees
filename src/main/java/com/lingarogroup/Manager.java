@@ -16,8 +16,13 @@ public class Manager extends Employee {
         if (managerMat.find()) {
             organisationSize = Integer.parseInt(managerMat.group("orgSize"));
             directReports = Integer.parseInt(managerMat.group("dr"));
-            salaryModifier = organisationSize * directReports;
-            salary += salaryModifier;
         }
+    }
+
+    @Override
+    public int getSalary() {
+        salaryModifier = organisationSize * directReports;
+        salary += salaryModifier;
+        return salary;
     }
 }
