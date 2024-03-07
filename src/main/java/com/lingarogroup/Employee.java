@@ -42,7 +42,13 @@ public abstract class Employee implements IEmployee {
                 case "Manager" -> new Manager(employeeRecord, Main.MANAGER_BASE_SALARY);
                 case "Analyst" -> new Analyst(employeeRecord, Main.ANALYST_BASE_SALARY);
                 case "CEO" -> new CEO(employeeRecord, Main.CEO_BASE_SALARY);
-                default -> new DummyEmployee();
+                // example of anonymous nested class declaration and initialisation
+                default -> new Employee() {
+                    @Override
+                    public int getSalary() {
+                        return 0;
+                    }
+                };
             };
         } else {
             return new DummyEmployee();
