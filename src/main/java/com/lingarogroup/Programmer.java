@@ -27,4 +27,9 @@ public class Programmer extends Employee implements Chef {
         salary += salaryModifier;
         return salary;
     }
+
+    // example getter method specific only to Programmer class
+    public int getIq() {
+        return iq;
+    }
 }

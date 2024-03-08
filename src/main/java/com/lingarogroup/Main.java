@@ -48,6 +48,43 @@ public class Main {
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
             employee = Employee.createEmployee(employeeRecord);
+            // checking if class equals another via equals method
+            if (employee.getClass().equals(Programmer.class)) {
+                System.out.println("programmer");
+            } else if (employee.getClass().equals(Manager.class)) {
+                System.out.println("manager");
+            } else {
+                System.out.println("other");
+            }
+            // example of checking instanceof
+            // useful for checking the specific type and casting to it to access specific methods of that type
+            if (employee instanceof Programmer) {
+                System.out.println("programmer");
+                // example of casting employee to Programmer after checking it is an instance of Programmer to access method
+                System.out.println(((Programmer) employee).getIq());
+            // example of "pattern matching" - while checking instanceof, it's possible to cast new variable to checked type
+            // only in java v16 or higher
+            } else if (employee instanceof Manager manager) {
+                System.out.println("manager");
+                // using type specific method on cast variable
+                System.out.println(manager.getOrganisationSize());
+            } else {
+                System.out.println("other");
+            }
+
+            // to do it in the switch is possible from v17preview
+            // before that version, switches accepted only primitives and enums
+            switch (employee) {
+                case Programmer prog:
+                    System.out.println(prog.getIq());
+                    break;
+                case Manager man:
+                    System.out.println(man.getOrganisationSize());
+                    break;
+                default:
+                    System.out.println("other");
+            }
+
             System.out.println(employee);
             totalSalaries += employee.getSalary();
         }

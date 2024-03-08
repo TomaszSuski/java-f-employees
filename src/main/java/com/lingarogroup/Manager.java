@@ -25,4 +25,9 @@ public class Manager extends Employee {
         salary += salaryModifier;
         return salary;
     }
+
+    // example getter method specific only to Manager class
+    public int getOrganisationSize() {
+        return organisationSize;
+    }
 }
