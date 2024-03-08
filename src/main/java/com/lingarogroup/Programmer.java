@@ -3,7 +3,7 @@ package com.lingarogroup;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Programmer extends Employee {
+public class Programmer extends Employee implements Chef {
     private int linesofCode = 0;
     private int yearsOfExp = 0;
     private int iq = 0;
@@ -27,6 +27,4 @@ public class Programmer extends Employee {
         salary += salaryModifier;
         return salary;
     }
-
-
 }

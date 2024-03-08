@@ -34,6 +34,10 @@ public class Main {
         NumberFormat currencyInstance = NumberFormat.getCurrencyInstance();
         System.out.printf("total salary should be %s%n", currencyInstance.format(totalSalaries));
 
+        // example of default methods usage from Chef interface in Programmer class
+//        Matcher peopleMatcher = Employee.PEOPLE_PATTERN.matcher(peopleList);
+//        Programmer coder = new Programmer("", 0);
+//        coder.cook("hamburger");
     }
 
     private static int getTotalSalaries(String peopleList) {
