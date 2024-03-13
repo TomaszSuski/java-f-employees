@@ -1,6 +1,9 @@
 package com.lingarogroup;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 
 public class Main {
@@ -45,50 +48,58 @@ public class Main {
 
         int totalSalaries = 0;
         IEmployee employee = null;
+        // declaration of new ArrayList via List interface generic
+        List<IEmployee> employees = new ArrayList<>();
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
             employee = Employee.createEmployee(employeeRecord);
-            // checking if class equals another via equals method
-            if (employee.getClass().equals(Programmer.class)) {
-                System.out.println("programmer");
-            } else if (employee.getClass().equals(Manager.class)) {
-                System.out.println("manager");
-            } else {
-                System.out.println("other");
-            }
-            // example of checking instanceof
-            // useful for checking the specific type and casting to it to access specific methods of that type
-            if (employee instanceof Programmer) {
-                System.out.println("programmer");
-                // example of casting employee to Programmer after checking it is an instance of Programmer to access method
-                System.out.println(((Programmer) employee).getIq());
-            // example of "pattern matching" - while checking instanceof, it's possible to cast new variable to checked type
-            // only in java v16 or higher
-            } else if (employee instanceof Manager manager) {
-                System.out.println("manager");
-                // using type specific method on cast variable
-                System.out.println(manager.getOrganisationSize());
-            } else {
-                System.out.println("other");
-            }
-
-            // to do it in the switch is possible from v17preview
-            // before that version, switches accepted only primitives and enums
-            switch (employee) {
-                case Programmer prog:
-                    System.out.println(prog.getIq());
-                    break;
-                case Manager man:
-                    System.out.println(man.getOrganisationSize());
-                    break;
-                default:
-                    System.out.println("other");
-            }
-
-            System.out.println(employee);
-            totalSalaries += employee.getSalary();
+            // adding to the list
+            employees.add(employee);
         }
+
+        //another list of employees to remove
+        List<String> removalNames = new ArrayList<>();
+        removalNames.add("Flinstone3");
+        removalNames.add("Rubble4");
+
+        /* following example is fixed below, using Iterator loop
+        // looping through the list when needed
+        for (IEmployee worker: employees) {
+            // =====
+            // trying to remove element while looping through the list doesn't work
+            if (worker instanceof Employee) {
+                Employee tmpWorker = (Employee) worker;
+                if (removalNames.contains(tmpWorker.getLastName())) {
+                    employees.remove(worker);
+                }
+            }
+            // =====
+            System.out.println(worker);
+            totalSalaries += worker.getSalary();
+        }
+        */
+
+        removeUndesirables(employees, removalNames);
+        for (IEmployee worker: employees) {
+            // =====
+            System.out.println(worker);
+            totalSalaries += worker.getSalary();
+        }
+
         return totalSalaries;
+    }
+
+    private static void removeUndesirables(List<IEmployee> employees, List<String> removalNames) {
+        for (Iterator<IEmployee> it = employees.iterator(); it.hasNext();) {
+            IEmployee worker = it.next();
+            // =====
+            // using iterators hasNext method, it's possible to remove item while looping through collection
+            if (worker instanceof Employee tmpWorker) {
+                if (removalNames.contains(tmpWorker.getLastName())) {
+                    it.remove();
+                }
+            }
+        }
     }
 
 }
