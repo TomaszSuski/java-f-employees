@@ -58,9 +58,21 @@ public class Main {
         }
 
         //another list of employees to remove
-        List<String> removalNames = new ArrayList<>();
-        removalNames.add("Flinstone3");
-        removalNames.add("Rubble4");
+//        List<String> undesirables = new ArrayList<>();
+//        undesirables.add("Flinstone3");
+//        undesirables.add("Rubble4");
+
+        // and easier way of doing it, but this way it's unmodifiable
+        List<String> undesirables = List.of("Flinstone3", "Rubble4");
+        // or the same, but creating modifiable ArrayList in one line
+//        List<String> undesirables = new ArrayList<>(List.of("Flinstone3", "Rubble4"));
+
+        // creating arrays from lists
+        // generic Object array - not very helpful, but may be necessary in some cases
+        Object[] genericArray = employees.toArray();
+        // typed array - should be used when possible
+        // needs an array instance initialized in argument
+        Object[] typedArray = employees.toArray(new IEmployee[0]);
 
         /* following example is fixed below, using Iterator loop
         // looping through the list when needed
@@ -69,7 +81,7 @@ public class Main {
             // trying to remove element while looping through the list doesn't work
             if (worker instanceof Employee) {
                 Employee tmpWorker = (Employee) worker;
-                if (removalNames.contains(tmpWorker.getLastName())) {
+                if (undesirables.contains(tmpWorker.getLastName())) {
                     employees.remove(worker);
                 }
             }
@@ -79,7 +91,7 @@ public class Main {
         }
         */
 
-        removeUndesirables(employees, removalNames);
+        removeUndesirables(employees, undesirables);
         for (IEmployee worker: employees) {
             // =====
             System.out.println(worker);
