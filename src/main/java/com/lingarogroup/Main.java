@@ -2,6 +2,7 @@ package com.lingarogroup;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -63,7 +64,7 @@ public class Main {
 //        undesirables.add("Rubble4");
 
         // and easier way of doing it, but this way it's unmodifiable
-        List<String> undesirables = List.of("Flinstone3", "Rubble4");
+//        List<String> undesirables = List.of("Flinstone3", "Rubble4");
         // or the same, but creating modifiable ArrayList in one line
 //        List<String> undesirables = new ArrayList<>(List.of("Flinstone3", "Rubble4"));
 
@@ -106,7 +107,32 @@ public class Main {
         }
         */
 
-        removeUndesirables(employees, undesirables);
+        // =======
+        // SORTING
+        employees.sort(new Comparator<IEmployee>() {
+            /* generated code uses IEmployee interface, which don't use firstnames or lastnames, so it can't compare them
+            the objects passed to compare method have to be cast to Employee class to use these fields
+
+            @Override
+            public int compare(IEmployee o1, IEmployee o2) {
+                return 0;
+            }
+            */
+
+            // actual implementation
+            @Override
+            public int compare(IEmployee o1, IEmployee o2) {
+                if (o1 instanceof Employee emp1 && o2 instanceof Employee emp2) {
+                    int lastNameCheck = emp1.lastName.compareTo(emp2.lastName);
+                    int firstNameCheck = emp1.firstName.compareTo(emp2.firstName);
+                    return lastNameCheck != 0 ? lastNameCheck : firstNameCheck;
+                }
+                return 0;
+            }
+        });
+
+
+//        removeUndesirables(employees, undesirables);
         for (IEmployee worker: employees) {
             // =====
             System.out.println(worker);
