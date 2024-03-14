@@ -135,6 +135,9 @@ public class Main {
         // another usage of the same concept, but in Collections class static method
         Collections.sort(employees, Comparator.naturalOrder()); // it just calls List.sort inside
 
+        // Collections class has more useful static methods:
+        Collections.shuffle(employees);
+
 
 //        removeUndesirables(employees, undesirables);
         for (IEmployee worker: employees) {
