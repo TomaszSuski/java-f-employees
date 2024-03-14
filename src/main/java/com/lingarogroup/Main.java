@@ -34,6 +34,8 @@ public class Main {
             Flinstone5, Wilma, 3/3/1910, Analyst, {projectCount=9}
             Rubble, Betty, 4/4/1915, CEO, {avgStockPrice=300}
             """;
+            // 22 entries
+
 
         int totalSalaries = getTotalSalaries(peopleList);
 
@@ -47,7 +49,7 @@ public class Main {
         int totalSalaries = 0;
         IEmployee employee = null;
         // declaration of new ArrayList via List interface generic
-        List<IEmployee> employees = new ArrayList<>();
+        Set<IEmployee> employees = new HashSet<>();
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
             employee = Employee.createEmployee(employeeRecord);
@@ -61,7 +63,7 @@ public class Main {
             totalSalaries += worker.getSalary();
         }
 
-        System.out.println(employees.size());
+        System.out.println(employees.size()); // 17 entries - duplicates eliminated
 
         return totalSalaries;
     }
