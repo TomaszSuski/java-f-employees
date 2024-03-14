@@ -74,6 +74,21 @@ public class Main {
         // needs an array instance initialized in argument
         Object[] typedArray = employees.toArray(new IEmployee[0]);
 
+        // CONTAINS method and it's limitations
+        // simple example of truthy check
+        IEmployee myEmp = employees.get(4);
+        System.out.println(employees.contains(myEmp)); // true
+        // but in case of checking using an object created separately, which is not an actual element of the list:
+        IEmployee employee1 = Employee.createEmployee("Flinstone4, Fred, 1/1/1900, Programmer, {locpd=1630,yoe=3,iq=115}");
+        System.out.println(employees.contains(employee1)); // false initially. true after implementing own equals() in Employee
+        // the reason is that contains() uses default Object class equals() method inside. And the default equals() method
+        // is checking o1 == o2, which is checking if it is the same space in the memory
+        // to avoid this, own created objects (classes) should override equals() method, which is done now in Employee class
+
+
+
+
+
         /* following example is fixed below, using Iterator loop
         // looping through the list when needed
         for (IEmployee worker: employees) {

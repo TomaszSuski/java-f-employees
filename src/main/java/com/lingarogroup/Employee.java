@@ -3,11 +3,12 @@ package com.lingarogroup;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Employee implements IEmployee {
-    private static final String PEOPLE_REGEX = "(?<lastName>\\w+),\\s*(?<firstName>\\w+),\\s*(?<dob>\\d{1,2}/\\d{1,2}/\\d{4}),\\s(?<role>\\w+)(?:,\\s\\{(?<details>.*)\\})?\\n";
+    private static final String PEOPLE_REGEX = "(?<lastName>\\w+),\\s*(?<firstName>\\w+),\\s*(?<dob>\\d{1,2}/\\d{1,2}/\\d{4}),\\s(?<role>\\w+)(?:,\\s\\{(?<details>.*)\\})?\\n?";
     public static final Pattern PEOPLE_PATTERN = Pattern.compile(PEOPLE_REGEX);
     protected final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
     protected final NumberFormat moneyFormat = NumberFormat.getCurrencyInstance();
@@ -75,10 +76,21 @@ public abstract class Employee implements IEmployee {
     }
 
     private static final class DummyEmployee extends Employee {
-
         @Override
         public int getSalary() {
             return 0;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Employee employee)) return false;
+        return Objects.equals(firstName, employee.firstName) && Objects.equals(lastName, employee.lastName) && Objects.equals(dateOfBirth, employee.dateOfBirth);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, dateOfBirth);
     }
 }
