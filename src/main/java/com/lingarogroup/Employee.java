@@ -52,7 +52,10 @@ public abstract class Employee implements IEmployee {
 //                };
                 // in case of use interface with exactly one method as a return format, it's possible to use lambda expression
                 // here is IEmployee interface that declares exactly one needed method
-                default -> () -> 0;
+//                default -> () -> 0;
+
+                // with extending the IEmployee the Comparable there's no mor only one method. Lambdas can't be used.
+                default -> new DummyEmployee();
             };
         } else {
             return new DummyEmployee();
@@ -92,5 +95,13 @@ public abstract class Employee implements IEmployee {
     @Override
     public int hashCode() {
         return Objects.hash(firstName, lastName, dateOfBirth);
+    }
+
+    // compareTo method from the Comparable interface has to be implemented
+    // below is the simplest implementation
+    @Override
+    public int compareTo(IEmployee o) {
+        Employee other = (Employee) o;
+        return this.lastName.compareTo(other.lastName);
     }
 }
