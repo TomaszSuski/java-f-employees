@@ -48,8 +48,16 @@ public class Main {
 
         int totalSalaries = 0;
         IEmployee employee = null;
-        // declaration of new ArrayList via List interface generic
-        Set<IEmployee> employees = new HashSet<>();
+        // declaration of new HashSet via Set generic
+        // creates unordered set
+//        Set<IEmployee> employees = new HashSet<>();
+        // the same using LinkedHashSet creates ordered set
+        Set<IEmployee> employees = new LinkedHashSet<>();
+        // but LinkedHashSet is a lot more expensive in time and computing power,
+        // and it also doesn't support getting particular element via index.
+        // To do this, the LinkedHashSet has to be changed to List, e.g. new ArrayList<>(employees).get(10)
+        // but it's also expensive operation - whole set has to be put into a list to get some element
+
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
             employee = Employee.createEmployee(employeeRecord);
