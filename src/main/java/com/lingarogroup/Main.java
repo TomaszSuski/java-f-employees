@@ -52,11 +52,25 @@ public class Main {
         // creates unordered set
 //        Set<IEmployee> employees = new HashSet<>();
         // the same using LinkedHashSet creates ordered set
-        Set<IEmployee> employees = new LinkedHashSet<>();
+//        Set<IEmployee> employees = new LinkedHashSet<>();
         // but LinkedHashSet is a lot more expensive in time and computing power,
         // and it also doesn't support getting particular element via index.
         // To do this, the LinkedHashSet has to be changed to List, e.g. new ArrayList<>(employees).get(10)
         // but it's also expensive operation - whole set has to be put into a list to get some element
+        // Third set is TreeSet
+//        Set<IEmployee> employees = new TreeSet<>();
+        // in previous implementation of Employee class compareTo method, this set contains only 11 entries.
+        // TreeSet is filtering elements for classes implementing comparable interface
+        // sorting (and also filtering) them using compareTo method.
+        // Actual compareTo implementation in Employee compares only last names,
+        // so all repeating last names were filtered out.
+        // And if objects passed to TreeSet don't implement Comparable interface, the TreeSet may be called with
+        // overloaded constructor accepting a Comparator.
+        // Of course, it may be used also to implement different comparing than implemented in objects
+        // and here is the implementation to make it work properly in this case (this requires access to all compared fields,
+        // so it had to be added - just defined getters for fields in IEmployee interface and added getter for dob in class):
+        Set<IEmployee> employees = new TreeSet<>(Main::compareEmployees);
+
 
         while (peopleMatcher.find()) {
             String employeeRecord = peopleMatcher.group();
@@ -74,5 +88,11 @@ public class Main {
         System.out.println(employees.size()); // 17 entries - duplicates eliminated
 
         return totalSalaries;
+    }
+
+    private static int compareEmployees(IEmployee e1, IEmployee e2) {
+        if (e1.getLastName().compareTo(e2.getLastName()) != 0) return e1.getLastName().compareTo(e2.getLastName());
+        if (e1.getFirstName().compareTo(e2.getFirstName()) !=0) return e1.getFirstName().compareTo(e2.getFirstName());
+        return e1.getDateOfBirth().compareTo(e2.getDateOfBirth());
     }
 }

@@ -74,6 +74,11 @@ public abstract class Employee implements IEmployee {
     }
 
     @Override
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    @Override
     public String toString() {
         return String.format("%s %s, salary: %s", getFirstName(), getLastName(), moneyFormat.format(salary));
     }
@@ -102,6 +107,19 @@ public abstract class Employee implements IEmployee {
     @Override
     public int compareTo(IEmployee o) {
         Employee other = (Employee) o;
+        // comparing through the last names only
         return this.lastName.compareTo(other.lastName);
+        // reimplemented method to be usable with TreeSet and current data
+//        if (this.lastName.compareTo(other.lastName) == 0) {
+//            if (this.firstName.compareTo(other.firstName) == 0) {
+//                return this.dateOfBirth.compareTo(other.dateOfBirth);
+//            } else {
+//                return this.firstName.compareTo(other.firstName);
+//            }
+//        } else {
+//            return this.lastName.compareTo(other.lastName);
+//        }
+        // the same approach may be implemented directly as a comparator in TreeSet constructor
+        // which is made in Main class
     }
 }
