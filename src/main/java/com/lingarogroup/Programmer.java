@@ -19,12 +19,12 @@ public class Programmer extends Employee implements Chef {
             yearsOfExp = Integer.parseInt(programmerMatcher.group("yoe"));
             iq = Integer.parseInt(programmerMatcher.group("iq"));
         }
+        salaryModifier = linesofCode * yearsOfExp * iq;
+        salary += salaryModifier;
     }
 
     @Override
     public int getSalary() {
-        salaryModifier = linesofCode * yearsOfExp * iq;
-        salary += salaryModifier;
         return salary;
     }
 

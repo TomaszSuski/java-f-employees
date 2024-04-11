@@ -38,12 +38,12 @@ public class CEO extends Employee implements Flyer {
         if (ceoMat.find()) {
             avgStockPrice = Integer.parseInt(ceoMat.group("avgStockPrice"));
         }
+        salaryModifier = avgStockPrice;
+        salary = salary * salaryModifier;
     }
 
     @Override
     public int getSalary() {
-        salaryModifier = avgStockPrice;
-        salary = salary * salaryModifier;
         return salary;
     }
 }

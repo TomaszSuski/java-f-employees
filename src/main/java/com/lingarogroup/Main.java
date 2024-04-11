@@ -9,6 +9,9 @@ public class Main {
     public static final int MANAGER_BASE_SALARY = 3500;
     public static final int ANALYST_BASE_SALARY = 2500;
     public static final int CEO_BASE_SALARY = 5000;
+    private static Set<IEmployee> employees;
+    private static Map<String, Integer> firstNamesToSalariesMap;
+
     public static void main(String[] args) {
         String peopleList = """
             Flinstone, Fred, 1/1/1900, Programmer, {locpd=2000,yoe=10,iq=140}
@@ -18,20 +21,20 @@ public class Main {
             Flinstone, Fred, 1/1/1900, Programmer, {locpd=2000,yoe=10,iq=140}
             Flinstone, Fred, 1/1/1900, Programmer, {locpd=2000,yoe=10,iq=140}
             Flinstone, Fred, 1/1/1900, Programmerzzz, {locpd=2000,yoe=10,iq=140}
-            Flinstone2, Fred, 1/1/1900, Programmer, {locpd=1300,yoe=14,iq=100}
-            Flinstone3, Fred, 1/1/1900, Programmer, {locpd=2300,yoe=8,iq=105}
-            Flinstone4, Fred, 1/1/1900, Programmer, {locpd=1630,yoe=3,iq=115}
-            Flinstone5, Fred, 1/1/1900, Programmer, {locpd=5,yoe=10,iq=100}
+            Flinstone2, Fred2, 1/1/1900, Programmer, {locpd=1300,yoe=14,iq=100}
+            Flinstone3, Fred3, 1/1/1900, Programmer, {locpd=2300,yoe=8,iq=105}
+            Flinstone4, Fred4, 1/1/1900, Programmer, {locpd=1630,yoe=3,iq=115}
+            Flinstone5, Fred5, 1/1/1900, Programmer, {locpd=5,yoe=10,iq=100}
             Rubble, Barney, 2/2/1905, Manager, {orgsize=300,dr=10}
-            Rubble2, Barney, 2/2/1905, Manager, {orgsize=100,dr=4}
-            Rubble3, Barney, 2/2/1905, Manager, {orgsize=200,dr=2}
-            Rubble4, Barney, 2/2/1905, Manager, {orgsize=500,dr=8}
-            Rubble5, Barney, 2/2/1905, Manager, {orgsize=175,dr=20}
+            Rubble2, Barney2, 2/2/1905, Manager, {orgsize=100,dr=4}
+            Rubble3, Barney3, 2/2/1905, Manager, {orgsize=200,dr=2}
+            Rubble4, Barney4, 2/2/1905, Manager, {orgsize=500,dr=8}
+            Rubble5, Barney5, 2/2/1905, Manager, {orgsize=175,dr=20}
             Flinstone, Wilma, 3/3/1910, Analyst, {projectCount=3}
-            Flinstone2, Wilma, 3/3/1910, Analyst, {projectCount=4}
-            Flinstone3, Wilma, 3/3/1910, Analyst, {projectCount=5}
-            Flinstone4, Wilma, 3/3/1910, Analyst, {projectCount=6}
-            Flinstone5, Wilma, 3/3/1910, Analyst, {projectCount=9}
+            Flinstone2, Wilma2, 3/3/1910, Analyst, {projectCount=4}
+            Flinstone3, Wilma3, 3/3/1910, Analyst, {projectCount=5}
+            Flinstone4, Wilma4, 3/3/1910, Analyst, {projectCount=6}
+            Flinstone5, Wilma5, 3/3/1910, Analyst, {projectCount=9}
             Rubble, Betty, 4/4/1915, CEO, {avgStockPrice=300}
             """;
             // 22 entries
@@ -69,15 +72,10 @@ public class Main {
         // Of course, it may be used also to implement different comparing than implemented in objects
         // and here is the implementation to make it work properly in this case (this requires access to all compared fields,
         // so it had to be added - just defined getters for fields in IEmployee interface and added getter for dob in class):
-        Set<IEmployee> employees = new TreeSet<>(Main::compareEmployees);
+        employees = new TreeSet<>(Main::compareEmployees);
+        firstNamesToSalariesMap = new HashMap<>();
 
-
-        while (peopleMatcher.find()) {
-            String employeeRecord = peopleMatcher.group();
-            employee = Employee.createEmployee(employeeRecord);
-            // adding to the list
-            employees.add(employee);
-        }
+        populateEmployees(peopleMatcher);
 
         for (IEmployee worker: employees) {
             // =====
@@ -90,9 +88,34 @@ public class Main {
         return totalSalaries;
     }
 
+    private static void populateEmployees(Matcher peopleMatcher) {
+        IEmployee employee;
+        while (peopleMatcher.find()) {
+            String employeeRecord = peopleMatcher.group();
+            employee = Employee.createEmployee(employeeRecord);
+            // adding to the list
+            employees.add(employee);
+            // adding to firstNamesToSalariesMap
+            firstNamesToSalariesMap.put(employee.getFirstName(), employee.getSalary());
+        }
+    }
+
     private static int compareEmployees(IEmployee e1, IEmployee e2) {
         if (e1.getLastName().compareTo(e2.getLastName()) != 0) return e1.getLastName().compareTo(e2.getLastName());
         if (e1.getFirstName().compareTo(e2.getFirstName()) !=0) return e1.getFirstName().compareTo(e2.getFirstName());
         return e1.getDateOfBirth().compareTo(e2.getDateOfBirth());
+    }
+
+    public int getSalary(String firstName) {
+        // the approach by iterating through entries works, but is wasteful
+//        for (IEmployee employee: employees) {
+//            // matching in string
+////            if (employee.toString().contains(firstName)) return employee.getSalary();
+//            // matching through fields. Casting employee to Employee class
+////            Employee emp = (Employee) employee;
+////            if (firstName.equals(emp.firstName)) return emp.getSalary();
+//        }
+        // the better way is to use map. Therefore, firstNamesToSalariesMap was created
+        return firstNamesToSalariesMap.getOrDefault(firstName, 0);
     }
 }
