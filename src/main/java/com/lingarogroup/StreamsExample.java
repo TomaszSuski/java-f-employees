@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -39,11 +42,54 @@ public class StreamsExample {
         // stream on multiline string
         // creating employee object via method reference (if method accepts one input it's passed automatically because
         // previous pipeline step returns one output. In this case a single line
-        // Then doing smthn for each of the outputs
+        // Then doing smthn for each of the outputs. Here mapping values of getsalary methods of iEmployee interface
+        // and creating a sum
+        int salarySum = peopleList
+                .lines()
+                .map(Employee::createEmployee)
+                .map(e -> (Employee)e)
+                .filter(Predicate.not(e -> "N/A".equals(e.getLastName())))
+//                .distinct()       ---- removes duplicates using equals method
+//                putting stream to collection - a Set here
+                .collect(Collectors.toSet())
+//                and creating a stream of set also removes duplicates because of Sets specific
+                .stream()
+                .sorted(Comparator.comparing(Employee::getFirstName)
+                        .thenComparing(Employee::getFirstName)
+                        .thenComparing(Employee::getDateOfBirth)
+                )
+                .mapToInt(StreamsExample::showEmployeeAndGetSalary)
+                .sum();
+        System.out.println(salarySum);
+
+
+//        ==========================================================
+
+        // gathering unique letters from first names of peopleList
         peopleList
                 .lines()
                 .map(Employee::createEmployee)
-                .forEach((iEmployee -> System.out.println(iEmployee.getFirstName())));
+                .map(e -> (Employee)e)
+                .map(Employee::getFirstName)
+                .map(firstName -> firstName.split(""))
+    // split with empty string regex as argument separates each character to its own string
+    // but ine strings stream, it creates stream of string arrays: ["F","r","e","d"]["B","a","r","n","e","y"]...
+    // Every time a Stream of Streams has to be flattened, there is a flatMap method
+                .flatMap(Arrays::stream)
+                .map(String::toLowerCase)
+                .distinct()
+                .forEach(System.out::print);
+
+
+
+
+
+
+
+
+
+
+//        ==========================================================
 
         // stream from a List
         List<Integer> nums = List.of(1, 2, 3);
@@ -93,4 +139,8 @@ public class StreamsExample {
         }
     }
 
+    private static int showEmployeeAndGetSalary(Employee e) {
+        System.out.println(e);
+        return e.getSalary();
+    }
 }
