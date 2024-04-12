@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -79,14 +80,49 @@ public class StreamsExample {
                 .map(String::toLowerCase)
                 .distinct()
                 .forEach(System.out::print);
+        System.out.println();
+
+//        ==========================================================
+
+        // checking if all employees earn more than 3000
+        Predicate<Employee> isDummyEmployee = e -> "N/A".equals(e.getLastName());
+        boolean allOver3K = peopleList
+                .lines()
+                .map(Employee::createEmployee)
+                .map(e -> (Employee)e)
+                .filter(isDummyEmployee.negate())
+                .allMatch((e -> e.getSalary() > 3000));
+        System.out.println(allOver3K);
 
 
 
+//        ==========================================================
+
+        // or checking if any employee earns more than 50,000
+        boolean anyOver50K = peopleList
+                .lines()
+                .map(Employee::createEmployee)
+                .map(e -> (Employee)e)
+                .filter(isDummyEmployee.negate())
+                .anyMatch((e -> e.getSalary() > 50000));
+        System.out.println(anyOver50K);
 
 
 
+//        ==========================================================
 
+        // findFirst returns an Optional<T>. It's meant to avoid nullPointer exceptions.
+        // Optional is always present, but it may contain value (whatever type) or not.
+        // It has own methods to utilise value or return a default if value is null
+        Optional<Employee> optionalEmployee = peopleList
+                .lines()
+                .map(Employee::createEmployee)
+                .map(e -> (Employee) e)
+                .filter(isDummyEmployee.negate())
+                .findAny();
+        System.out.println(optionalEmployee.map(Employee::getFirstName).orElse("Default"));
 
+        // findAny is similar in construction
 
 
 //        ==========================================================
