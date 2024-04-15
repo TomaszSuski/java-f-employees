@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class BigData {
@@ -93,6 +95,17 @@ public class BigData {
 
             System.out.printf("$%,d.00 calculated in %d%n",personSalarySum, endTime4 - startTime4);
 
+
+//            =======================================
+            // using more complex Collectors possibilities
+
+            // grouping alphabetised using treeMap as the MapFactory and toList method
+            Map<String, List<Person>> PersonsByState = Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .map(l -> l.split(","))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
+                    .collect(Collectors.groupingBy(Person::state, TreeMap::new, Collectors.toList()));
 
         } catch (IOException e) {
             e.printStackTrace();
