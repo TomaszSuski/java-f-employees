@@ -2,6 +2,7 @@ package com.lingarogroup;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
@@ -9,11 +10,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BigData {
 
-    record Person(String firstName, String lastName, long salary, String state, char gender) {}
+    record Person(String firstName, String lastName, long salary, String state, char gender, BigDecimal salaryBD) {}
 
     public static void main(String[] args) {
         try {
@@ -91,11 +93,12 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
                     .collect(Collectors.summingLong(Person::salary));
             long endTime4 = System.currentTimeMillis();
 
             System.out.printf("$%,d.00 calculated in %d%n",personSalarySum, endTime4 - startTime4);
+            System.out.println();
 
 
 //            =======================================
@@ -106,7 +109,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
                     .collect(Collectors.groupingBy(Person::state, TreeMap::new, Collectors.toList()));
 
             // summing salaries by states
@@ -114,7 +117,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
                     .collect(Collectors.groupingBy(Person::state,
                             TreeMap::new,
                             Collectors.collectingAndThen(Collectors.summingLong(Person::salary),
@@ -122,13 +125,14 @@ public class BigData {
                                     NumberFormat.getCurrencyInstance()::format)));  // formatting using numberformat
 
             System.out.println(salariesByState);
+            System.out.println();
 
             // averaging salaries by state and gender
             Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
                     .collect(
                             Collectors.groupingBy(Person::state, TreeMap::new,
                                     Collectors.groupingBy(Person::gender,
@@ -141,11 +145,42 @@ public class BigData {
                         System.out.printf("salaries in %s:%n", state);
                         map.forEach((gender, salary) -> System.out.printf("%s -> %s%n", gender, salary));
                     });
-            
+            System.out.println();
+
+            // averaging salaries by state and gender BUT using BigDecimal for accuracy of money math
+            Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .map(l -> l.split(","))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .collect(
+                            Collectors.groupingBy(Person::state, TreeMap::new,
+                                    Collectors.groupingBy(Person::gender,
+                                            Collectors.collectingAndThen(
+                                                    Collectors.reducing(new BigDecimal("0"), Person::salaryBD, BigDecimal::add),
+                                                    NumberFormat.getCurrencyInstance()::format
+                                            ))
+                            ))
+                    .forEach((state, map) -> {
+                        System.out.printf("salaries in %s:%n", state);
+                        map.forEach((gender, salary) -> System.out.printf("%s -> %s%n", gender, salary));
+                    });
+            System.out.println();
+
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private static Function<String[], Person> createPerson(int firstNameIndex, int lastNameIndex, int salaryIndex, int stateIndex, int genderIndex) {
+        return a -> new Person(
+                a[firstNameIndex],
+                a[lastNameIndex],
+                Long.parseLong(a[salaryIndex]),
+                a[stateIndex], a[genderIndex].strip().charAt(0),
+                new BigDecimal(a[salaryIndex])
+        );
     }
 }
