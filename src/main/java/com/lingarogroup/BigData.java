@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,21 @@ public class BigData {
                     .map(l -> l.split(","))
                     .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
                     .collect(Collectors.groupingBy(Person::state, TreeMap::new, Collectors.toList()));
+
+            // summing salaries by states
+            TreeMap<String, String> salariesByState = Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .map(l -> l.split(","))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
+                    .collect(Collectors.groupingBy(Person::state,
+                            TreeMap::new,
+                            Collectors.collectingAndThen(Collectors.summingLong(Person::salary),
+//                                    s -> String.format("$%,d.00%n", s))));   ---- formatting using String.format
+                                    NumberFormat.getCurrencyInstance()::format)));  // formatting using numberformat
+
+            System.out.println(salariesByState);
+
 
         } catch (IOException e) {
             e.printStackTrace();
