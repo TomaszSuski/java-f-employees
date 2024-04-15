@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BigData {
+
+    record Person(String firstName, String lastName, long salary, String state) {}
+
     public static void main(String[] args) {
         try {
             // counting using stream count method
@@ -25,12 +28,18 @@ public class BigData {
 
             // summing all salary fields
             // first finding index of Salary
-            int salaryIndex = Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+            // and other fields
+            List<String> columns = Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
                     .limit(1)
+                    .map(str -> str.toLowerCase())
                     .map(line -> line.split(","))
                     .flatMap(Arrays::stream)
-                    .toList()
-                    .indexOf("Salary");
+                    .toList();
+
+            int salaryIndex = columns.indexOf(("salary"));
+            int firstNameIndex = columns.indexOf("first name");
+            int lastNameIndex = columns.indexOf("last name");
+            int stateIndex = columns.indexOf("state");
 
             //then sum
             long startTime = System.currentTimeMillis();
@@ -69,6 +78,21 @@ public class BigData {
 
             System.out.printf("$%,d.00 calculated in %d%n",salarySum3, endTime3 - startTime3);
             // this time it's about 2 seconds
+
+
+//            =======================================
+            // now instantiating every line as record of Person
+            long startTime4 = System.currentTimeMillis();
+            Long personSalarySum = Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .map(l -> l.split(","))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
+                    .collect(Collectors.summingLong(Person::salary));
+            long endTime4 = System.currentTimeMillis();
+
+            System.out.printf("$%,d.00 calculated in %d%n",personSalarySum, endTime4 - startTime4);
+
 
         } catch (IOException e) {
             e.printStackTrace();
