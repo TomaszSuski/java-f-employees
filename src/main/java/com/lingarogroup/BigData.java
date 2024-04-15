@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class BigData {
 
-    record Person(String firstName, String lastName, long salary, String state) {}
+    record Person(String firstName, String lastName, long salary, String state, char gender) {}
 
     public static void main(String[] args) {
         try {
@@ -43,6 +43,7 @@ public class BigData {
             int firstNameIndex = columns.indexOf("first name");
             int lastNameIndex = columns.indexOf("last name");
             int stateIndex = columns.indexOf("state");
+            int genderIndex = columns.indexOf("gender");
 
             //then sum
             long startTime = System.currentTimeMillis();
@@ -90,7 +91,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
                     .collect(Collectors.summingLong(Person::salary));
             long endTime4 = System.currentTimeMillis();
 
@@ -105,7 +106,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
                     .collect(Collectors.groupingBy(Person::state, TreeMap::new, Collectors.toList()));
 
             // summing salaries by states
@@ -113,7 +114,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex]))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
                     .collect(Collectors.groupingBy(Person::state,
                             TreeMap::new,
                             Collectors.collectingAndThen(Collectors.summingLong(Person::salary),
@@ -122,6 +123,25 @@ public class BigData {
 
             System.out.println(salariesByState);
 
+            // averaging salaries by state and gender
+            Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .map(l -> l.split(","))
+                    .map(a -> new Person(a[firstNameIndex], a[lastNameIndex], Long.parseLong(a[salaryIndex]), a[stateIndex], a[genderIndex].strip().charAt(0)))
+                    .collect(
+                            Collectors.groupingBy(Person::state, TreeMap::new,
+                                    Collectors.groupingBy(Person::gender,
+                                                Collectors.collectingAndThen(
+                                                        Collectors.averagingLong(Person::salary),
+                                                        NumberFormat.getCurrencyInstance()::format
+                                                ))
+                            ))
+                    .forEach((state, map) -> {
+                        System.out.printf("salaries in %s:%n", state);
+                        map.forEach((gender, salary) -> System.out.printf("%s -> %s%n", gender, salary));
+                    });
+            
 
         } catch (IOException e) {
             e.printStackTrace();
