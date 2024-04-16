@@ -157,7 +157,7 @@ public class BigData {
                             Collectors.groupingBy(Person::state, TreeMap::new,
                                     Collectors.groupingBy(Person::gender,
                                             Collectors.collectingAndThen(
-                                                    Collectors.reducing(new BigDecimal("0"), Person::salaryBD, BigDecimal::add),
+                                                    Collectors.reducing(BigDecimal.ZERO, Person::salaryBD, BigDecimal::add),
                                                     NumberFormat.getCurrencyInstance()::format
                                             ))
                             ))
@@ -166,6 +166,33 @@ public class BigData {
                         map.forEach((gender, salary) -> System.out.printf("%s -> %s%n", gender, salary));
                     });
             System.out.println();
+
+
+
+            // partitioningBy - works as a conduct of filter and collect - filter "loses" not matching elements
+            // this method creates a map with exactly two key-value pairs. One value is a list of matching elements
+            // and the other with nto matching elements
+            Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .map(l -> l.split(","))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .collect(
+//                            Collectors.partitioningBy(p -> p.gender() == 'F')  // this creates keys of true and false and inserts proper values
+                            // returns Map<Boolean, List<Person>>
+//                            Collectors.partitioningBy(p -> p.gender() == 'F', Collectors.counting()) // this counts all values in keys
+                            // returns Map<Boolean, Long>
+                            // second parameter accepts any collector method
+                            Collectors.partitioningBy(p->p.gender()=='F', Collectors.groupingBy(Person::state, Collectors.counting())))
+                            // above partitions by gender, then group both lists by state and counts. return value Map<Boolean, Map<String, Long>>
+                    .forEach((bool, map) -> {
+                        String gender = bool ? "Women" : "Men";
+                        System.out.printf("Total number of %s by states:%n", gender);
+                        map.forEach((state, count) -> System.out.printf("%s -> %d%n", state, count));
+                        System.out.println();
+                    });
+            System.out.println();
+
 
 
         } catch (IOException e) {
