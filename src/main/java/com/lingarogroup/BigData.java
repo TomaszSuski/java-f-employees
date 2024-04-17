@@ -6,6 +6,10 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +19,21 @@ import java.util.stream.Collectors;
 
 public class BigData {
 
-    record Person(String firstName, String lastName, long salary, String state, char gender, BigDecimal salaryBD) {}
+    record Person(
+            String firstName,
+            String lastName,
+            long salary,
+            String state,
+            char gender,
+            BigDecimal salaryBD,
+            LocalDate birthDate,
+            LocalTime birthTime
+    ) {
+        long getAge() {
+//            return LocalDate.now().getYear() - birthDate.getYear();       // just math
+            return Period.between(birthDate, LocalDate.now()).getYears();  // using Period class
+        }
+    }
 
     public static void main(String[] args) {
         try {
@@ -46,6 +64,8 @@ public class BigData {
             int lastNameIndex = columns.indexOf("last name");
             int stateIndex = columns.indexOf("state");
             int genderIndex = columns.indexOf("gender");
+            int dobIndex = columns.indexOf("date of birth");
+            int tobIndex = columns.indexOf("time of birth");
 
             //then sum
             long startTime = System.currentTimeMillis();
@@ -93,7 +113,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
                     .collect(Collectors.summingLong(Person::salary));
             long endTime4 = System.currentTimeMillis();
 
@@ -109,7 +129,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
                     .collect(Collectors.groupingBy(Person::state, TreeMap::new, Collectors.toList()));
 
             // summing salaries by states
@@ -117,7 +137,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
                     .collect(Collectors.groupingBy(Person::state,
                             TreeMap::new,
                             Collectors.collectingAndThen(Collectors.summingLong(Person::salary),
@@ -132,7 +152,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
                     .collect(
                             Collectors.groupingBy(Person::state, TreeMap::new,
                                     Collectors.groupingBy(Person::gender,
@@ -152,7 +172,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
                     .collect(
                             Collectors.groupingBy(Person::state, TreeMap::new,
                                     Collectors.groupingBy(Person::gender,
@@ -176,7 +196,7 @@ public class BigData {
                     .parallel()
                     .skip(1)
                     .map(l -> l.split(","))
-                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
                     .collect(
 //                            Collectors.partitioningBy(p -> p.gender() == 'F')  // this creates keys of true and false and inserts proper values
                             // returns Map<Boolean, List<Person>>
@@ -195,19 +215,41 @@ public class BigData {
 
 
 
+            // printing 100 records of peoples first name, last name, date of birth and age
+            Files.lines(Path.of("/home/tomasz_suski/projects/JAVA/course/Employees/data/Hr5m.csv"))
+                    .parallel()
+                    .skip(1)
+                    .limit(100)
+                    .map(l -> l.split(","))
+                    .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
+                    .forEach(p -> System.out.printf("%s %s born: %s - age: %d%n", p.firstName(), p.lastName(), p.birthDate(), p.getAge()));
+            System.out.println();
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    private static Function<String[], Person> createPerson(int firstNameIndex, int lastNameIndex, int salaryIndex, int stateIndex, int genderIndex) {
+    private static Function<String[], Person> createPerson(int firstNameIndex,
+                                                           int lastNameIndex,
+                                                           int salaryIndex,
+                                                           int stateIndex,
+                                                           int genderIndex,
+                                                           int dobIndex,
+                                                           int tobIndex) {
         return a -> new Person(
                 a[firstNameIndex],
                 a[lastNameIndex],
                 Long.parseLong(a[salaryIndex]),
                 a[stateIndex], a[genderIndex].strip().charAt(0),
-                new BigDecimal(a[salaryIndex])
+                new BigDecimal(a[salaryIndex]),
+                LocalDate.parse(a[dobIndex], DateTimeFormatter.ofPattern("M/d/yyyy")),  // this is the format of date in the file
+                // so parsing needs second parameter of DateTimeFormatter with proper format
+                LocalTime.parse(a[tobIndex], DateTimeFormatter.ofPattern("hh:mm:ss a"))  // this is the format of time in the file
+                // so parsing needs second parameter of DateTimeFormatter with proper format (a is for am/pm)
         );
     }
 }
