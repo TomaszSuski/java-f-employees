@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 
 public class BigData {
 
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
+    private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a");
+
     record Person(
             String firstName,
             String lastName,
@@ -32,6 +35,10 @@ public class BigData {
         long getAge() {
 //            return LocalDate.now().getYear() - birthDate.getYear();       // just math
             return Period.between(birthDate, LocalDate.now()).getYears();  // using Period class
+        }
+
+        String getDOBAsText() {
+            return dateFormatter.format(birthDate);
         }
     }
 
@@ -222,7 +229,7 @@ public class BigData {
                     .limit(100)
                     .map(l -> l.split(","))
                     .map(createPerson(firstNameIndex, lastNameIndex, salaryIndex, stateIndex, genderIndex, dobIndex, tobIndex))
-                    .forEach(p -> System.out.printf("%s %s born: %s - age: %d%n", p.firstName(), p.lastName(), p.birthDate(), p.getAge()));
+                    .forEach(p -> System.out.printf("%s %s born: %s - age: %d%n", p.firstName(), p.lastName(), p.getDOBAsText(), p.getAge()));
             System.out.println();
 
 
@@ -246,9 +253,9 @@ public class BigData {
                 Long.parseLong(a[salaryIndex]),
                 a[stateIndex], a[genderIndex].strip().charAt(0),
                 new BigDecimal(a[salaryIndex]),
-                LocalDate.parse(a[dobIndex], DateTimeFormatter.ofPattern("M/d/yyyy")),  // this is the format of date in the file
+                LocalDate.parse(a[dobIndex], dateFormatter),  // this is the format of date in the file
                 // so parsing needs second parameter of DateTimeFormatter with proper format
-                LocalTime.parse(a[tobIndex], DateTimeFormatter.ofPattern("hh:mm:ss a"))  // this is the format of time in the file
+                LocalTime.parse(a[tobIndex], timeFormatter)  // this is the format of time in the file
                 // so parsing needs second parameter of DateTimeFormatter with proper format (a is for am/pm)
         );
     }
